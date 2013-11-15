@@ -1,0 +1,3 @@
+graft src/Plant_FinanceSE/sphinx_build/html
+recursive-include src/Plant_FinanceSE/test *.py
+
