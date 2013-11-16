@@ -6,8 +6,8 @@
 
 from setuptools import setup, find_packages
 
-kwargs = {'author': '',
- 'author_email': '',
+kwargs = {'author': 'Katherine Dykes',
+ 'author_email': 'systems.engineering@nrel.gov',
  'classifiers': ['Intended Audience :: Science/Research',
                  'Topic :: Scientific/Engineering'],
  'description': '',
@@ -15,13 +15,13 @@ kwargs = {'author': '',
  'include_package_data': True,
  'install_requires': ['openmdao.main'],
  'keywords': ['openmdao'],
- 'license': '',
- 'maintainer': '',
- 'maintainer_email': '',
+ 'license': 'Apache v. 2.0',
+ #'maintainer': '',
+ #'maintainer_email': '',
  'name': 'Plant_FinanceSE',
  'package_data': {'Plant_FinanceSE': []},
  'package_dir': {'': 'src'},
- 'packages': ['Plant_FinanceSE'],
+ 'packages': ['Plant_FinanceSE', 'Plant_FinanceSE.NREL_CSM_FIN'],
  'url': '',
  'version': '0.1',
  'zip_safe': False}
