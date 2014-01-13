@@ -75,7 +75,7 @@ class fin_cst_component(BaseFinancialAggregator):
 
         if self.offshore:
            warrantyPremium = (self.turbine_cost * self.turbine_number / 1.10) * 0.15
-           icc = self.turbine_cost * self.turbine_number + warrantyPremium + self.bos_cost
+           icc = self.turbine_cost * self.turbine_number + warrantyPremium + self.bos_costs
         else:
            icc = self.turbine_cost * self.turbine_number + self.bos_cost
 
@@ -84,22 +84,24 @@ class fin_cst_component(BaseFinancialAggregator):
         
         # derivatives
         if self.offshore:
-        	  d_lcoe_d_turbine_cost = (self.turbine_number * (1 + 0.15/1.10) * self.fixed_charge_rate + 0.15/1.10) / self.net_aep
+        	  self.d_coe_d_turbine_cost = (self.turbine_number * (1 + 0.15/1.10) * self.fixed_charge_rate + 0.15/1.10) / self.net_aep
         else:
-            d_lcoe_d_turbine_cost = self.turbine_number * self.fixed_charge_rate / self.net_aep
-        d_lcoe_d_bos_cost = self.fixed_charge_rate / self.net_aep
-        d_lcoe_d_avg_annual_opex = (1-self.tax_rate) / self.net_aep
-        d_lcoe_d_net_aep = -(((self.turbine_cost * self.turbine_number + self.bos_cost) * self.fixed_charge_rate) + self.avg_annual_opex * (1-self.tax_rate)) / (self.net_aep**2)
+            self.d_coe_d_turbine_cost = self.turbine_number * self.fixed_charge_rate / self.net_aep
+        self.d_coe_d_bos_cost = self.fixed_charge_rate / self.net_aep
+        self.d_coe_d_avg_annual_opex = (1-self.tax_rate) / self.net_aep
+        self.d_coe_d_net_aep = -(((self.turbine_cost * self.turbine_number + self.bos_costs) * self.fixed_charge_rate) + self.avg_annual_opex * (1-self.tax_rate)) / (self.net_aep**2)
+
+    def linearize(self):
 
         # Jacobian
-        self.J = np.array([[d_lcoe_d_turbine_cost, d_lcoe_d_bos_cost, d_lcoe_d_avg_annual_opex, d_lcoe_d_net_aep]])
+        self.J = np.array([[self.d_coe_d_turbine_cost, self.d_coe_d_bos_cost, self.d_coe_d_avg_annual_opex, self.d_coe_d_net_aep]])
 
     def provideJ(self):
 
-        input_keys = ['turbine_cost', 'bos_cost', 'avg_annual_opex', 'net_aep']
-        output_keys = ['coe']
+        inputs = ['turbine_cost', 'bos_cost', 'avg_annual_opex', 'net_aep']
+        outputs = ['coe']
 
-        self.derivatives.set_first_derivative(input_keys, output_keys, self.J) 
+        return inputs, outputs, self.J
 
 def example():
 	
@@ -112,7 +114,7 @@ def example():
     land_lease_cost = 22225.395
     corrective_maintenance_cost = 91048.387
     fin.avg_annual_opex = preventative_maintenance_cost + corrective_maintenance_cost + land_lease_cost
-    fin.bos_cost = 7668775.3
+    fin.bos_costs = 7668775.3
     fin.net_aep = 15756299.843
     
     fin.execute()

@@ -5,14 +5,14 @@ Created by NWTC Systems Engineering Sub-Task on 2012-08-01.
 Copyright (c) NREL. All rights reserved.
 """
 
-import sys
-
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
 from openmdao.main.datatypes.api import Int, Bool, Float, Array, Enum, VarTree
 
 from fusedwind.plant_cost.fused_fin_asym import BaseFinancialModel, BaseFinancialAggregator
 
 from NREL_CSM.csmFinance import csmFinance 
+
+import numpy as np
 
 # -------------------------------------------------------------------
 
@@ -39,10 +39,7 @@ class fin_csm_assembly(BaseFinancialModel):
         
         self.create_passthrough('fin.lcoe')
 
-class fin_csm_component(BaseFinancialAggregator):    
-
-    # variables
-    machine_rating = Float(5000.0, units = 'kW', iotype = 'in', desc = 'rated power for a wind turbine')
+class fin_csm_component(BaseFinancialAggregator):
     
     # parameters
     fixed_charge_rate = Float(0.12, iotype = 'in', desc = 'fixed charge rate for coe calculation')
@@ -51,14 +48,10 @@ class fin_csm_component(BaseFinancialAggregator):
     discount_rate = Float(0.07, iotype = 'in', desc = 'applicable project discount rate')
     construction_time = Float(1.0, iotype = 'in', desc = 'number of years to complete project construction')
     project_lifetime = Float(20.0, iotype = 'in', desc = 'project lifetime for LCOE calculation')
-
-    preventative_opex = Float(401819.023, iotype='in', units='USD', desc='O&M costs')
-    corrective_opex   = Float(91048.387, iotype='in', units='USD', desc='levelized replacement costs')
-    lease_opex     = Float(22225.395, iotype='in', units='USD', desc='land lease costs')  
     sea_depth = Float(20.0, iotype='in', units='m', desc = 'depth of project for offshore, (0 for onshore)')
         
     # output
-    lcoe = Float(0.0, iotype='out', desc='_cost of energy - unlevelized')
+    lcoe = Float(iotype='out', desc='_cost of energy - unlevelized')
     
     def __init__(self):
         """
@@ -103,14 +96,9 @@ class fin_csm_component(BaseFinancialAggregator):
 		      _cost of energy - unlevelized [USD/kWh]
 		    lcoe : float
 		      _cost of energy - levelized [USD/kWh]
-
         """
 
         super(fin_csm_component, self).__init__()
-
-        #initialize csmFIN model
-        self.fin = csmFinance()
-
 
     def execute(self):
         """
@@ -119,13 +107,59 @@ class fin_csm_component(BaseFinancialAggregator):
         
         print "In {0}.execute()...".format(self.__class__)
 
-        self.fin.compute(self.machine_rating, self.turbine_cost * self.turbine_number, self.preventative_opex, \
-                         self.lease_opex, self.corrective_opex, self.bos_costs, self.net_aep, \
-                         self.fixed_charge_rate, self.construction_finance_rate, self.tax_rate, self.discount_rate, self.construction_time, \
-                         self.project_lifetime, self.turbine_number, self.sea_depth)
+        if self.sea_depth > 0.0:
+        	 offshore = True
+        else:
+        	 offshore = False
+        
+        if offshore:
+           warrantyPremium = (self.turbine_cost * self.turbine_number / 1.10) * 0.15
+           icc = self.turbine_cost * self.turbine_number + warrantyPremium + self.bos_costs
+           print self.turbine_cost * self.turbine_number
+           print self.bos_costs
+           print warrantyPremium
+        else:
+           icc = self.turbine_cost * self.turbine_number + self.bos_costs
 
-        self.coe = self.fin.getCOE()
-        self.lcoe = self.fin.getLCOE()
+        #compute COE and LCOE values
+        self.coe = (icc* self.fixed_charge_rate / self.net_aep) + \
+                   (self.avg_annual_opex) * (1-self.tax_rate) / self.net_aep
+
+        amortFactor = (1 + 0.5*((1+self.discount_rate)**self.construction_time-1)) * \
+                      (self.discount_rate/(1-(1+self.discount_rate)**(-1.0*self.project_lifetime))) 
+        self.lcoe = (icc * amortFactor + self.avg_annual_opex)/self.net_aep
+
+
+        # derivatives
+        if offshore:
+        	  self.d_coe_d_turbine_cost = (self.turbine_number * (1 + 0.15/1.10) * self.fixed_charge_rate + 0.15/1.10) / self.net_aep
+        else:
+            self.d_coe_d_turbine_cost = self.turbine_number * self.fixed_charge_rate / self.net_aep
+        self.d_coe_d_bos_cost = self.fixed_charge_rate / self.net_aep
+        self.d_coe_d_avg_opex = (1-self.tax_rate) / self.net_aep
+        self.d_coe_d_net_aep = -(icc * self.fixed_charge_rate + self.avg_annual_opex * (1-self.tax_rate)) / (self.net_aep**2)
+
+        if offshore:
+        	  self.d_lcoe_d_turbine_cost = (1 + 0.15/1.10) * amortFactor / self.net_aep
+        else:
+            self.d_lcoe_d_turbine_cost = amortFactor / self.net_aep
+        self.d_lcoe_d_bos_cost = amortFactor / self.net_aep
+        self.d_lcoe_d_avg_opex = 1. / self.net_aep
+        self.d_lcoe_d_net_aep = -(icc * amortFactor + self.avg_annual_opex) / (self.net_aep**2)
+
+    def linearize(self):
+
+        # Jacobian
+        self.J = np.array([[self.d_coe_d_turbine_cost, self.d_coe_d_bos_cost, self.d_coe_d_avg_opex, self.d_coe_d_net_aep],\
+                           [self.d_lcoe_d_turbine_cost, self.d_lcoe_d_bos_cost, self.d_lcoe_d_avg_opex, self.d_lcoe_d_net_aep]])
+
+    def provideJ(self):
+
+        inputs = ['turbine_cost', 'bos_costs', 'avg_annual_opex', 'net_aep']
+        outputs = ['coe', 'lcoe']
+
+        return inputs, outputs, self.J
+
 
 def example():
 	
@@ -135,10 +169,10 @@ def example():
 
     fin.turbine_cost = 6087803.555 / 50
     fin.turbine_number = 50
-    fin.preventative_opex = 401819.023
-    fin.lease_opex = 22225.395
-    fin.corrective_opex = 91048.387
-    fin.avg_annual_opex = fin.preventative_opex + fin.corrective_opex + fin.lease_opex
+    preventative_opex = 401819.023
+    lease_opex = 22225.395
+    corrective_opex = 91048.387
+    fin.avg_annual_opex = preventative_opex + corrective_opex + lease_opex
     fin.bos_costs = 7668775.3
     fin.net_aep = 15756299.843
     
