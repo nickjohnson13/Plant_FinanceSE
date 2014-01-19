@@ -8,9 +8,7 @@ Copyright (c) NREL. All rights reserved.
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
 from openmdao.main.datatypes.api import Int, Bool, Float, Array, Enum, VarTree
 
-from fusedwind.plant_cost.fused_fin_asym import BaseFinancialModel, BaseFinancialAggregator
-
-from NREL_CSM.csmFinance import csmFinance 
+from fusedwind.plant_cost.fused_fin_asym import BaseFinancialModel, BaseFinancialAggregator 
 
 import numpy as np
 
@@ -23,18 +21,14 @@ class fin_csm_assembly(BaseFinancialModel):
         super(fin_csm_assembly, self).configure()
         
         self.replace('fin', fin_csm_component())
-        
-        self.create_passthrough('fin.machine_rating')
+
         self.create_passthrough('fin.fixed_charge_rate')
         self.create_passthrough('fin.construction_finance_rate')
         self.create_passthrough('fin.tax_rate')
         self.create_passthrough('fin.discount_rate')
         self.create_passthrough('fin.construction_time')
         self.create_passthrough('fin.project_lifetime')
-        
-        self.create_passthrough('fin.preventative_opex')
-        self.create_passthrough('fin.corrective_opex')
-        self.create_passthrough('fin.lease_opex')
+
         self.create_passthrough('fin.sea_depth')
         
         self.create_passthrough('fin.lcoe')
@@ -115,9 +109,6 @@ class fin_csm_component(BaseFinancialAggregator):
         if offshore:
            warrantyPremium = (self.turbine_cost * self.turbine_number / 1.10) * 0.15
            icc = self.turbine_cost * self.turbine_number + warrantyPremium + self.bos_costs
-           print self.turbine_cost * self.turbine_number
-           print self.bos_costs
-           print warrantyPremium
         else:
            icc = self.turbine_cost * self.turbine_number + self.bos_costs
 
