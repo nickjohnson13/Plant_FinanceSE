@@ -53,46 +53,49 @@ class fin_csm_component(BaseFinancialAggregator):
 
         Parameters
         ----------  
-		    machine_rating : float
-		      rated power for a wind turbine [kW]
-		    fixedChargeRate : float
-		      fixed charge rate for coe calculation
-		    constructionFinancingRate : float
-		      construction financing rate applied to overnight capital costs
-		    taxRate : float
-		      tax rate applied to operations
-		    discountRate : float
-		      applicable project discount rate
-		    constructionTime : float
-		      number of years to complete project construction
-		    project_lifetime : float
-		      project lifetime for LCOE calculation
-		    turbine_number : int
-		      number of turbines at plant
-		    aep : float
-		      Annual energy production [kWh]
-		    turbine_cost : float
-		      Turbine capital costs [USD per turbine]
-		    BOScost : float
-		      Balance of station costs total [USD]
-		    preventativeMaintenance_cost : float
-		      O&M costs annual total [USD]
-		    correctiveMaintenance_cost : float
-		      levelized replacement costs annual total [USD]
-		    landLease_cost : float
-		      land lease costs annual total [USD] 
-		    sea_depth : float
-		      depth of project [m]
-		        
+        machine_rating : float
+          rated power for a wind turbine [kW]
+        fixedChargeRate : float
+          fixed charge rate for coe calculation
+        constructionFinancingRate : float
+          construction financing rate applied to overnight capital costs
+        taxRate : float
+          tax rate applied to operations
+        discountRate : float
+          applicable project discount rate
+        constructionTime : float
+          number of years to complete project construction
+        project_lifetime : float
+          project lifetime for LCOE calculation
+        turbine_number : int
+          number of turbines at plant
+        aep : float
+          Annual energy production [kWh]
+        turbine_cost : float
+          Turbine capital costs [USD per turbine]
+        BOScost : float
+          Balance of station costs total [USD]
+        preventativeMaintenance_cost : float
+          O&M costs annual total [USD]
+        correctiveMaintenance_cost : float
+          levelized replacement costs annual total [USD]
+        landLease_cost : float
+          land lease costs annual total [USD] 
+        sea_depth : float
+          depth of project [m]
+            
         Returns
         -------
-		    coe : float
-		      _cost of energy - unlevelized [USD/kWh]
-		    lcoe : float
-		      _cost of energy - levelized [USD/kWh]
+        coe : float
+          _cost of energy - unlevelized [USD/kWh]
+        lcoe : float
+          _cost of energy - levelized [USD/kWh]
         """
 
         super(fin_csm_component, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
 
     def execute(self):
         """
@@ -102,9 +105,9 @@ class fin_csm_component(BaseFinancialAggregator):
         print "In {0}.execute()...".format(self.__class__)
 
         if self.sea_depth > 0.0:
-        	 offshore = True
+           offshore = True
         else:
-        	 offshore = False
+           offshore = False
         
         if offshore:
            warrantyPremium = (self.turbine_cost * self.turbine_number / 1.10) * 0.15
@@ -123,7 +126,7 @@ class fin_csm_component(BaseFinancialAggregator):
 
         # derivatives
         if offshore:
-        	  self.d_coe_d_turbine_cost = (self.turbine_number * (1 + 0.15/1.10) * self.fixed_charge_rate + 0.15/1.10) / self.net_aep
+            self.d_coe_d_turbine_cost = (self.turbine_number * (1 + 0.15/1.10) * self.fixed_charge_rate + 0.15/1.10) / self.net_aep
         else:
             self.d_coe_d_turbine_cost = self.turbine_number * self.fixed_charge_rate / self.net_aep
         self.d_coe_d_bos_cost = self.fixed_charge_rate / self.net_aep
@@ -131,29 +134,31 @@ class fin_csm_component(BaseFinancialAggregator):
         self.d_coe_d_net_aep = -(icc * self.fixed_charge_rate + self.avg_annual_opex * (1-self.tax_rate)) / (self.net_aep**2)
 
         if offshore:
-        	  self.d_lcoe_d_turbine_cost = (1 + 0.15/1.10) * amortFactor / self.net_aep
+            self.d_lcoe_d_turbine_cost = (1 + 0.15/1.10) * amortFactor / self.net_aep
         else:
             self.d_lcoe_d_turbine_cost = amortFactor / self.net_aep
         self.d_lcoe_d_bos_cost = amortFactor / self.net_aep
         self.d_lcoe_d_avg_opex = 1. / self.net_aep
         self.d_lcoe_d_net_aep = -(icc * amortFactor + self.avg_annual_opex) / (self.net_aep**2)
 
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('turbine_cost', 'bos_costs', 'avg_annual_opex', 'net_aep')
+        outputs = ('coe', 'lcoe')
+
+        return inputs, outputs
+
+    def provideJ(self):
 
         # Jacobian
         self.J = np.array([[self.d_coe_d_turbine_cost, self.d_coe_d_bos_cost, self.d_coe_d_avg_opex, self.d_coe_d_net_aep],\
                            [self.d_lcoe_d_turbine_cost, self.d_lcoe_d_bos_cost, self.d_lcoe_d_avg_opex, self.d_lcoe_d_net_aep]])
 
-    def provideJ(self):
-
-        inputs = ['turbine_cost', 'bos_costs', 'avg_annual_opex', 'net_aep']
-        outputs = ['coe', 'lcoe']
-
-        return inputs, outputs, self.J
+        return self.J
 
 
 def example():
-	
+  
     # simple test of module
 
     fin = fin_csm_component()
@@ -170,7 +175,7 @@ def example():
     fin.execute()
     print "Offshore"
     print "lcoe: {0}".format(fin.lcoe)
-    print "coe: {0}".format(fin.coe)	
+    print "coe: {0}".format(fin.coe)  
 
 if __name__ == "__main__":
 

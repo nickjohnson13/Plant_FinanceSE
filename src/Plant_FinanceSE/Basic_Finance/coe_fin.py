@@ -39,32 +39,35 @@ class fin_cst_component(BaseFinancialAggregator):
 
         Parameters
         ----------
-		    fixedChargeRate : float
-		      fixed charge rate for coe calculation
-		    taxRate : float
-		      tax rate applied to operations
-		    turbineNumber : int
-		      number of turbines at plant
-		    aep : float
-		      Annual energy production [kWh]
-		    turbineCost : float
-		      Turbine capital costs [USD per turbine]
-		    BOScost : float
-		      Balance of station costs total [USD]
-		    preventativeMaintenanceCost : float
-		      O&M costs annual total [USD]
-		    correctiveMaintenanceCost : float
-		      levelized replacement costs annual total [USD]
-		    landLeaseCost : float
-		      land lease costs annual total [USD] 
-		        
+        fixedChargeRate : float
+          fixed charge rate for coe calculation
+        taxRate : float
+          tax rate applied to operations
+        turbineNumber : int
+          number of turbines at plant
+        aep : float
+          Annual energy production [kWh]
+        turbineCost : float
+          Turbine capital costs [USD per turbine]
+        BOScost : float
+          Balance of station costs total [USD]
+        preventativeMaintenanceCost : float
+          O&M costs annual total [USD]
+        correctiveMaintenanceCost : float
+          levelized replacement costs annual total [USD]
+        landLeaseCost : float
+          land lease costs annual total [USD] 
+            
         Returns
         -------
-		    lcoe : float
-		      Cost of energy - levelized [USD/kWh]
+        lcoe : float
+          Cost of energy - levelized [USD/kWh]
         """
         
         super(fin_cst_component, self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
 
     def execute(self):
         """
@@ -84,27 +87,29 @@ class fin_cst_component(BaseFinancialAggregator):
         
         # derivatives
         if self.offshore:
-        	  self.d_coe_d_turbine_cost = (self.turbine_number * (1 + 0.15/1.10) * self.fixed_charge_rate + 0.15/1.10) / self.net_aep
+            self.d_coe_d_turbine_cost = (self.turbine_number * (1 + 0.15/1.10) * self.fixed_charge_rate + 0.15/1.10) / self.net_aep
         else:
             self.d_coe_d_turbine_cost = self.turbine_number * self.fixed_charge_rate / self.net_aep
         self.d_coe_d_bos_cost = self.fixed_charge_rate / self.net_aep
         self.d_coe_d_avg_annual_opex = (1-self.tax_rate) / self.net_aep
         self.d_coe_d_net_aep = -(((self.turbine_cost * self.turbine_number + self.bos_costs) * self.fixed_charge_rate) + self.avg_annual_opex * (1-self.tax_rate)) / (self.net_aep**2)
 
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('turbine_cost', 'bos_cost', 'avg_annual_opex', 'net_aep')
+        outputs = ('coe')
+
+        return inputs, outputs
+
+    def provideJ(self):
 
         # Jacobian
         self.J = np.array([[self.d_coe_d_turbine_cost, self.d_coe_d_bos_cost, self.d_coe_d_avg_annual_opex, self.d_coe_d_net_aep]])
 
-    def provideJ(self):
-
-        inputs = ['turbine_cost', 'bos_cost', 'avg_annual_opex', 'net_aep']
-        outputs = ['coe']
-
-        return inputs, outputs, self.J
+        return self.J
 
 def example():
-	
+  
     # simple test of module
     fin = fin_cst_assembly()
 
