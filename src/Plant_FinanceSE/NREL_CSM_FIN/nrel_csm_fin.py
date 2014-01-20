@@ -143,8 +143,8 @@ class fin_csm_component(BaseFinancialAggregator):
 
     def list_deriv_vars(self):
 
-        inputs = ('turbine_cost', 'bos_costs', 'avg_annual_opex', 'net_aep')
-        outputs = ('coe', 'lcoe')
+        inputs = ['turbine_cost', 'bos_costs', 'avg_annual_opex', 'net_aep']
+        outputs = ['coe', 'lcoe']
 
         return inputs, outputs
 

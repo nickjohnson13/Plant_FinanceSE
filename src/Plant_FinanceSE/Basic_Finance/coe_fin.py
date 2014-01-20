@@ -96,8 +96,8 @@ class fin_cst_component(BaseFinancialAggregator):
 
     def list_deriv_vars(self):
 
-        inputs = ('turbine_cost', 'bos_cost', 'avg_annual_opex', 'net_aep')
-        outputs = ('coe')
+        inputs = ['turbine_cost', 'bos_cost', 'avg_annual_opex', 'net_aep']
+        outputs = ['coe']
 
         return inputs, outputs
 

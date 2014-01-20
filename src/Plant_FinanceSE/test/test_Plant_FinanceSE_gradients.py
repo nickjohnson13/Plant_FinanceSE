@@ -11,7 +11,7 @@ Copyright (c) NREL. All rights reserved.
 import unittest
 import numpy as np
 from commonse.utilities import check_gradient_unit_test
-from Plant_FinanceSE.NREL_CSM_FIN.coe_fin import fin_cst_component
+from Plant_FinanceSE.Basic_Finance.coe_fin import fin_cst_component
 from Plant_FinanceSE.NREL_CSM_FIN.nrel_csm_fin import fin_csm_component
 
 

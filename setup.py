@@ -21,7 +21,7 @@ kwargs = {'author': 'Katherine Dykes',
  'name': 'Plant_FinanceSE',
  'package_data': {'Plant_FinanceSE': []},
  'package_dir': {'': 'src'},
- 'packages': ['Plant_FinanceSE', 'Plant_FinanceSE.NREL_CSM_FIN'],
+ 'packages': ['Plant_FinanceSE', 'Plant_FinanceSE.NREL_CSM_FIN', 'Plant_FinanceSE.Basic_Finance'],
  'url': '',
  'version': '0.1',
  'zip_safe': False}
