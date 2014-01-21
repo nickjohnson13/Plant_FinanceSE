@@ -15,6 +15,11 @@ from fusedwind.plant_cost.fused_fin_asym import BaseFinancialModel, BaseFinancia
 # -------------------------------------------------------------------
 
 class fin_cst_assembly(BaseFinancialModel):
+
+    # parameters
+    fixed_charge_rate = Float(0.12, iotype = 'in', desc = 'fixed charge rate for coe calculation')
+    tax_rate = Float(0.4, iotype = 'in', desc = 'tax rate applied to operations')
+    offshore = Bool(True, iotype = 'in', desc = 'boolean for offshore')
     
     def configure(self):
     
@@ -22,9 +27,9 @@ class fin_cst_assembly(BaseFinancialModel):
         
         self.replace('fin', fin_cst_component())
 
-        self.create_passthrough('fin.fixed_charge_rate')
-        self.create_passthrough('fin.tax_rate')
-        self.create_passthrough('fin.offshore')
+        self.connect('fixed_charge_rate','fin.fixed_charge_rate')
+        self.connect('tax_rate','fin.tax_rate')
+        self.connect('offshore','fin.offshore')
 
 class fin_cst_component(BaseFinancialAggregator):
 

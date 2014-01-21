@@ -15,6 +15,18 @@ import numpy as np
 # -------------------------------------------------------------------
 
 class fin_csm_assembly(BaseFinancialModel):
+
+    # parameters
+    fixed_charge_rate = Float(0.12, iotype = 'in', desc = 'fixed charge rate for coe calculation')
+    construction_finance_rate = Float(0.00, iotype='in', desc = 'construction financing rate applied to overnight capital costs')
+    tax_rate = Float(0.4, iotype = 'in', desc = 'tax rate applied to operations')
+    discount_rate = Float(0.07, iotype = 'in', desc = 'applicable project discount rate')
+    construction_time = Float(1.0, iotype = 'in', desc = 'number of years to complete project construction')
+    project_lifetime = Float(20.0, iotype = 'in', desc = 'project lifetime for LCOE calculation')
+    sea_depth = Float(20.0, iotype='in', units='m', desc = 'depth of project for offshore, (0 for onshore)')
+        
+    # output
+    lcoe = Float(iotype='out', desc='_cost of energy - unlevelized')
     
     def configure(self):
     
@@ -22,16 +34,16 @@ class fin_csm_assembly(BaseFinancialModel):
         
         self.replace('fin', fin_csm_component())
 
-        self.create_passthrough('fin.fixed_charge_rate')
-        self.create_passthrough('fin.construction_finance_rate')
-        self.create_passthrough('fin.tax_rate')
-        self.create_passthrough('fin.discount_rate')
-        self.create_passthrough('fin.construction_time')
-        self.create_passthrough('fin.project_lifetime')
+        self.connect('fixed_charge_rate','fin.fixed_charge_rate')
+        self.connect('construction_finance_rate','fin.construction_finance_rate')
+        self.connect('tax_rate','fin.tax_rate')
+        self.connect('discount_rate','fin.discount_rate')
+        self.connect('construction_time','fin.construction_time')
+        self.connect('project_lifetime','fin.project_lifetime')
 
-        self.create_passthrough('fin.sea_depth')
+        self.connect('sea_depth','fin.sea_depth')
         
-        self.create_passthrough('fin.lcoe')
+        self.connect('fin.lcoe','lcoe')
 
 class fin_csm_component(BaseFinancialAggregator):
     
