@@ -8,7 +8,7 @@ Copyright (c) NREL. All rights reserved.
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
 from openmdao.main.datatypes.api import Int, Bool, Float, Array, Enum, VarTree
 
-from fusedwind.plant_cost.fused_fin_asym import BaseFinancialModel, BaseFinancialAggregator 
+from fusedwind.plant_cost.fused_fin_asym import BaseFinancialModel, BaseFinancialAggregator
 
 import numpy as np
 
@@ -24,14 +24,14 @@ class fin_csm_assembly(BaseFinancialModel):
     construction_time = Float(1.0, iotype = 'in', desc = 'number of years to complete project construction')
     project_lifetime = Float(20.0, iotype = 'in', desc = 'project lifetime for LCOE calculation')
     sea_depth = Float(20.0, iotype='in', units='m', desc = 'depth of project for offshore, (0 for onshore)')
-        
+
     # output
     lcoe = Float(iotype='out', desc='_cost of energy - unlevelized')
-    
+
     def configure(self):
-    
+
         super(fin_csm_assembly, self).configure()
-        
+
         self.replace('fin', fin_csm_component())
 
         self.connect('fixed_charge_rate','fin.fixed_charge_rate')
@@ -42,11 +42,11 @@ class fin_csm_assembly(BaseFinancialModel):
         self.connect('project_lifetime','fin.project_lifetime')
 
         self.connect('sea_depth','fin.sea_depth')
-        
+
         self.connect('fin.lcoe','lcoe')
 
 class fin_csm_component(BaseFinancialAggregator):
-    
+
     # parameters
     fixed_charge_rate = Float(0.12, iotype = 'in', desc = 'fixed charge rate for coe calculation')
     construction_finance_rate = Float(0.00, iotype='in', desc = 'construction financing rate applied to overnight capital costs')
@@ -55,16 +55,16 @@ class fin_csm_component(BaseFinancialAggregator):
     construction_time = Float(1.0, iotype = 'in', desc = 'number of years to complete project construction')
     project_lifetime = Float(20.0, iotype = 'in', desc = 'project lifetime for LCOE calculation')
     sea_depth = Float(20.0, iotype='in', units='m', desc = 'depth of project for offshore, (0 for onshore)')
-        
+
     # output
     lcoe = Float(iotype='out', desc='_cost of energy - unlevelized')
-    
+
     def __init__(self):
         """
         OpenMDAO component to wrap finance model of the NREL _cost and Scaling Model (csmFinance.py)
 
         Parameters
-        ----------  
+        ----------
         machine_rating : float
           rated power for a wind turbine [kW]
         fixedChargeRate : float
@@ -92,10 +92,10 @@ class fin_csm_component(BaseFinancialAggregator):
         correctiveMaintenance_cost : float
           levelized replacement costs annual total [USD]
         landLease_cost : float
-          land lease costs annual total [USD] 
+          land lease costs annual total [USD]
         sea_depth : float
           depth of project [m]
-            
+
         Returns
         -------
         coe : float
@@ -113,14 +113,14 @@ class fin_csm_component(BaseFinancialAggregator):
         """
         Executes finance model of the NREL _cost and Scaling model to determine overall plant COE and LCOE.
         """
-        
-        print "In {0}.execute()...".format(self.__class__)
+
+        # print "In {0}.execute()...".format(self.__class__)
 
         if self.sea_depth > 0.0:
            offshore = True
         else:
            offshore = False
-        
+
         if offshore:
            warrantyPremium = (self.turbine_cost * self.turbine_number / 1.10) * 0.15
            icc = self.turbine_cost * self.turbine_number + warrantyPremium + self.bos_costs
@@ -132,7 +132,7 @@ class fin_csm_component(BaseFinancialAggregator):
                    (self.avg_annual_opex) * (1-self.tax_rate) / self.net_aep
 
         amortFactor = (1 + 0.5*((1+self.discount_rate)**self.construction_time-1)) * \
-                      (self.discount_rate/(1-(1+self.discount_rate)**(-1.0*self.project_lifetime))) 
+                      (self.discount_rate/(1-(1+self.discount_rate)**(-1.0*self.project_lifetime)))
         self.lcoe = (icc * amortFactor + self.avg_annual_opex)/self.net_aep
 
 
@@ -170,7 +170,7 @@ class fin_csm_component(BaseFinancialAggregator):
 
 
 def example():
-  
+
     # simple test of module
 
     fin = fin_csm_component()
@@ -183,11 +183,11 @@ def example():
     fin.avg_annual_opex = preventative_opex + corrective_opex + lease_opex
     fin.bos_costs = 7668775.3
     fin.net_aep = 15756299.843
-    
+
     fin.execute()
     print "Offshore"
     print "lcoe: {0}".format(fin.lcoe)
-    print "coe: {0}".format(fin.coe)  
+    print "coe: {0}".format(fin.coe)
 
 if __name__ == "__main__":
 
