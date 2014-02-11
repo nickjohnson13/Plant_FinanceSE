@@ -20,11 +20,11 @@ class fin_cst_assembly(BaseFinancialModel):
     fixed_charge_rate = Float(0.12, iotype = 'in', desc = 'fixed charge rate for coe calculation')
     tax_rate = Float(0.4, iotype = 'in', desc = 'tax rate applied to operations')
     offshore = Bool(True, iotype = 'in', desc = 'boolean for offshore')
-    
+
     def configure(self):
-    
+
         super(fin_cst_assembly, self).configure()
-        
+
         self.replace('fin', fin_cst_component())
 
         self.connect('fixed_charge_rate','fin.fixed_charge_rate')
@@ -37,7 +37,7 @@ class fin_cst_component(BaseFinancialAggregator):
     fixed_charge_rate = Float(0.12, iotype = 'in', desc = 'fixed charge rate for coe calculation')
     tax_rate = Float(0.4, iotype = 'in', desc = 'tax rate applied to operations')
     offshore = Bool(True, iotype = 'in', desc = 'boolean for offshore')
-    
+
     def __init__(self):
         """
         OpenMDAO component to wrap finance model of the NREL Cost and Scaling Model (csmFinance.py)
@@ -61,14 +61,14 @@ class fin_cst_component(BaseFinancialAggregator):
         correctiveMaintenanceCost : float
           levelized replacement costs annual total [USD]
         landLeaseCost : float
-          land lease costs annual total [USD] 
-            
+          land lease costs annual total [USD]
+
         Returns
         -------
         lcoe : float
           Cost of energy - levelized [USD/kWh]
         """
-        
+
         super(fin_cst_component, self).__init__()
 
         #controls what happens if derivatives are missing
@@ -78,8 +78,8 @@ class fin_cst_component(BaseFinancialAggregator):
         """
         Executes finance model of the NREL Cost and Scaling model to determine overall plant COE and LCOE.
         """
-        
-        print "In {0}.execute()...".format(self.__class__)
+
+        # print "In {0}.execute()...".format(self.__class__)
 
         if self.offshore:
            warrantyPremium = (self.turbine_cost * self.turbine_number / 1.10) * 0.15
@@ -89,7 +89,7 @@ class fin_cst_component(BaseFinancialAggregator):
 
         # compute COE and LCOE values
         self.coe = (icc * self.fixed_charge_rate + self.avg_annual_opex * (1-self.tax_rate)) / self.net_aep
-        
+
         # derivatives
         if self.offshore:
             self.d_coe_d_turbine_cost = (self.turbine_number * (1 + 0.15/1.10) * self.fixed_charge_rate + 0.15/1.10) / self.net_aep
@@ -114,7 +114,7 @@ class fin_cst_component(BaseFinancialAggregator):
         return self.J
 
 def example():
-  
+
     # simple test of module
     fin = fin_cst_assembly()
 
@@ -126,7 +126,7 @@ def example():
     fin.avg_annual_opex = preventative_maintenance_cost + corrective_maintenance_cost + land_lease_cost
     fin.bos_costs = 7668775.3
     fin.net_aep = 15756299.843
-    
+
     fin.execute()
     print "Offshore"
     print "coe: {0}".format(fin.coe)

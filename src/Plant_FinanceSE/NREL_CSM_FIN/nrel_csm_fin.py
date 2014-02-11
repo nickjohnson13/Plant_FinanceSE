@@ -138,7 +138,7 @@ class fin_csm_component(BaseFinancialAggregator):
 
         # derivatives
         if offshore:
-            self.d_coe_d_turbine_cost = (self.turbine_number * (1 + 0.15/1.10) * self.fixed_charge_rate + 0.15/1.10) / self.net_aep
+            self.d_coe_d_turbine_cost = (self.turbine_number * (1 + 0.15/1.10) * self.fixed_charge_rate) / self.net_aep
         else:
             self.d_coe_d_turbine_cost = self.turbine_number * self.fixed_charge_rate / self.net_aep
         self.d_coe_d_bos_cost = self.fixed_charge_rate / self.net_aep
@@ -146,9 +146,9 @@ class fin_csm_component(BaseFinancialAggregator):
         self.d_coe_d_net_aep = -(icc * self.fixed_charge_rate + self.avg_annual_opex * (1-self.tax_rate)) / (self.net_aep**2)
 
         if offshore:
-            self.d_lcoe_d_turbine_cost = (1 + 0.15/1.10) * amortFactor / self.net_aep
+            self.d_lcoe_d_turbine_cost = self.turbine_number * (1 + 0.15/1.10) * amortFactor / self.net_aep
         else:
-            self.d_lcoe_d_turbine_cost = amortFactor / self.net_aep
+            self.d_lcoe_d_turbine_cost = self.turbine_number * amortFactor / self.net_aep
         self.d_lcoe_d_bos_cost = amortFactor / self.net_aep
         self.d_lcoe_d_avg_opex = 1. / self.net_aep
         self.d_lcoe_d_net_aep = -(icc * amortFactor + self.avg_annual_opex) / (self.net_aep**2)
@@ -163,7 +163,7 @@ class fin_csm_component(BaseFinancialAggregator):
     def provideJ(self):
 
         # Jacobian
-        self.J = np.array([[self.d_coe_d_turbine_cost, self.d_coe_d_bos_cost, self.d_coe_d_avg_opex, self.d_coe_d_net_aep],\
+        self.J = np.array([[self.d_coe_d_turbine_cost, self.d_coe_d_bos_cost, self.d_coe_d_avg_opex, self.d_coe_d_net_aep],
                            [self.d_lcoe_d_turbine_cost, self.d_lcoe_d_bos_cost, self.d_lcoe_d_avg_opex, self.d_lcoe_d_net_aep]])
 
         return self.J

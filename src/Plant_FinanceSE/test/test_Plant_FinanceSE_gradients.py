@@ -20,7 +20,7 @@ class Test_fin_cst_component(unittest.TestCase):
     def test1(self):
 
         fin = fin_cst_component()
-    
+
         fin.turbine_cost = 6087803.555 / 50
         fin.turbine_number = 50
         preventative_maintenance_cost = 401819.023
@@ -31,13 +31,13 @@ class Test_fin_cst_component(unittest.TestCase):
         fin.net_aep = 15756299.843
 
         check_gradient_unit_test(self, fin)
- 
+
 class Test_fin_csm_component(unittest.TestCase):
 
     def test1(self):
 
         fin = fin_csm_component()
-    
+
         fin.turbine_cost = 6087803.555 / 50
         fin.turbine_number = 50
         fin.preventative_opex = 401819.023
@@ -48,7 +48,6 @@ class Test_fin_csm_component(unittest.TestCase):
         fin.net_aep = 15756299.843
 
         check_gradient_unit_test(self, fin)
-        
+
 if __name__ == "__main__":
     unittest.main()
-    
