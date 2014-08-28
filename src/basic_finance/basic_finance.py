@@ -127,8 +127,8 @@ def example():
     fin.bos_costs = 7668775.3
     fin.net_aep = 15756299.843
 
-    fin.execute()
-    print "Offshore"
+    fin.run()
+    print "Offshore wind plant cost"
     print "coe: {0}".format(fin.coe)
 
 if __name__ == "__main__":

@@ -8,22 +8,15 @@ from setuptools import setup, find_packages
 
 kwargs = {'author': 'Katherine Dykes',
  'author_email': 'systems.engineering@nrel.gov',
- 'classifiers': ['Intended Audience :: Science/Research',
-                 'Topic :: Scientific/Engineering'],
- 'description': '',
- 'download_url': '',
+ 'description' : 'NREL WISDEM plant finance models',
  'include_package_data': True,
  'install_requires': ['openmdao.main'],
  'keywords': ['openmdao'],
- 'license': 'Apache v. 2.0',
- #'maintainer': '',
- #'maintainer_email': '',
+ 'license' : 'Apache License, Version 2.0',
  'name': 'Plant_FinanceSE',
  'package_data': {'Plant_FinanceSE': []},
  'package_dir': {'': 'src'},
- 'packages': ['Plant_FinanceSE', 'Plant_FinanceSE.NREL_CSM_FIN', 'Plant_FinanceSE.Basic_Finance'],
- 'url': '',
- 'version': '0.1',
+ 'packages': ['nrel_csm_fin', 'basic_finance'],
  'zip_safe': False}
 
 

@@ -1,8 +1,5 @@
-
-#!/usr/bin/env python
-# encoding: utf-8
 """
-test_Turbine_CostsSE.py
+test_Plant_FinanceSE_gradients.py
 
 Created by Katherine Dykes on 2014-01-07.
 Copyright (c) NREL. All rights reserved.

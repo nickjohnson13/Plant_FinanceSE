@@ -1,4 +1,33 @@
-Plant_FinanceSE
-===============
+# Plant_FinanceSE
 
-financial models for a wind plant
+A set of models for assessing the wind plant cost of energy.  The models use cost and energy production information about the wind plant and turbines along with inputs for financial parameters to estimate overall plant cost of energy.
+
+Author: [K. Dykes] (mailto:katherine.dykes@nrel.gov)
+
+## Prerequisites
+
+NumPy, SciPy, FUSED-Wind, OpenMDAO
+
+## Installation
+
+Install Turbine_CostsSE within an activated OpenMDAO environment
+
+	$ plugin install
+
+It is not recommended to install the software outside of OpenMDAO.
+
+## Run Unit Tests
+
+To check if installation was successful try to import the module
+
+	$ python
+	> import basic_finance.coe_fin
+	> import nrel_csm_fin.nrel_csm_fin
+
+You may also run the unit tests.
+
+	$ python src/test/test_Plant_FinanceSE_gradients.py
+
+## Detailed Documentation
+
+Online documentation is available at <http://wisdem.github.io/Plant_FinanceSE/>

@@ -1,13 +1,23 @@
-=============================
-Plant_FinanceSE Documentation
-=============================
+Plant_FinanceSE
+================
 
-Contents:
+.. only:: html
+
+    Plant finance models for wind plant cost of energy.
+
+    Author: `Katherine Dykes <mailto:katherine.dykes@nrel.gov>`_
+
+    .. rubric:: Table of Contents
+
 
 .. toctree::
-   :maxdepth: 2
-    
-   usage
-   srcdocs
-   pkgdocs
+    :numbered:
+    :maxdepth: 2
+
+    intro
+    installation
+    tutorial
+    documentation
+    theory
+
 

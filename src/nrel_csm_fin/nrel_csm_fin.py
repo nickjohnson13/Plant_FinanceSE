@@ -63,45 +63,6 @@ class fin_csm_component(BaseFinancialAggregator):
         """
         OpenMDAO component to wrap finance model of the NREL _cost and Scaling Model (csmFinance.py)
 
-        Parameters
-        ----------
-        machine_rating : float
-          rated power for a wind turbine [kW]
-        fixedChargeRate : float
-          fixed charge rate for coe calculation
-        constructionFinancingRate : float
-          construction financing rate applied to overnight capital costs
-        taxRate : float
-          tax rate applied to operations
-        discountRate : float
-          applicable project discount rate
-        constructionTime : float
-          number of years to complete project construction
-        project_lifetime : float
-          project lifetime for LCOE calculation
-        turbine_number : int
-          number of turbines at plant
-        aep : float
-          Annual energy production [kWh]
-        turbine_cost : float
-          Turbine capital costs [USD per turbine]
-        BOScost : float
-          Balance of station costs total [USD]
-        preventativeMaintenance_cost : float
-          O&M costs annual total [USD]
-        correctiveMaintenance_cost : float
-          levelized replacement costs annual total [USD]
-        landLease_cost : float
-          land lease costs annual total [USD]
-        sea_depth : float
-          depth of project [m]
-
-        Returns
-        -------
-        coe : float
-          _cost of energy - unlevelized [USD/kWh]
-        lcoe : float
-          _cost of energy - levelized [USD/kWh]
         """
 
         super(fin_csm_component, self).__init__()
@@ -173,7 +134,7 @@ def example():
 
     # simple test of module
 
-    fin = fin_csm_component()
+    fin = fin_csm_assembly()
 
     fin.turbine_cost = 6087803.555 / 50
     fin.turbine_number = 50
@@ -184,8 +145,8 @@ def example():
     fin.bos_costs = 7668775.3
     fin.net_aep = 15756299.843
 
-    fin.execute()
-    print "Offshore"
+    fin.run()
+    print "Offshore  plant cost"
     print "lcoe: {0}".format(fin.lcoe)
     print "coe: {0}".format(fin.coe)
 
