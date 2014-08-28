@@ -1,6 +1,6 @@
 # Plant_FinanceSE
 
-A set of models for assessing the wind plant cost of energy.  The models use cost and energy production information about the wind plant and turbines along with inputs for financial parameters to estimate overall plant cost of energy.
+A set of models for assessing overall wind plant cost of energy (coe).  The models use wind turbine and plant cost and energy production information as well as several financial parameters in simple equations to estimate coe.
 
 Author: [K. Dykes] (mailto:katherine.dykes@nrel.gov)
 
