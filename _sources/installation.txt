@@ -9,7 +9,7 @@ Installation
 Clone the repository at `<https://github.com/WISDEM/Plant_FinanceSE>`_
 or download the releases and uncompress/unpack (Plant_FinanceSE.py-|release|.tar.gz or Plant_FinanceSE.py-|release|.zip)
 
-Install Plant_FinanceSE, first activate the OpenMDAO environment and then install with the following command.
+To install Plant_FinanceSE, first activate the OpenMDAO environment and then install with the following command.
 
 .. code-block:: bash
 
