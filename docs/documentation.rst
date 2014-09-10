@@ -12,8 +12,8 @@ The following inputs and outputs are defined for NREL_CSM_FIN:
 
 .. literalinclude:: ../src/nrel_csm_fin/nrel_csm_fin.py
     :language: python
-    :start-after: fin_csm_assembly(BaseFinancialModel)
-    :end-before: def __init__(self)
+    :start-after: fin_csm_assembly(Assembly)
+    :end-before: def configure(self)
     :prepend: class fin_csm_assembly(Assembly):
 
 Referenced Financial Modules
@@ -33,8 +33,8 @@ The following inputs and outputs are defined for Basic_Finance:
 
 .. literalinclude:: ../src/basic_finance/basic_finance.py
     :language: python
-    :start-after: fin_cst_assembly(BaseFinancialModel)
-    :end-before: def __init__(self)
+    :start-after: fin_cst_assembly(Assembly)
+    :end-before: def configure(self)
     :prepend: class fin_cst_assembly(Assembly):
 
 Referenced Financial Modules
