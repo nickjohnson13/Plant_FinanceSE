@@ -10,20 +10,31 @@ import numpy as np
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
 from openmdao.main.datatypes.api import Int, Bool, Float, Array, Enum, VarTree
 
-from fusedwind.plant_cost.fused_fin_asym import BaseFinancialModel, BaseFinancialAggregator
+from fusedwind.plant_cost.fused_finance import BaseFinancialModel, BaseFinancialAggregator, configure_base_finance
+from fusedwind.interface import implement_base
 
 # -------------------------------------------------------------------
+@implement_base(BaseFinancialModel)
+class fin_cst_assembly(Assembly):
 
-class fin_cst_assembly(BaseFinancialModel):
+    # Inputs
+    turbine_cost = Float(iotype='in', desc = 'A Wind Turbine Capital _cost')
+    turbine_number = Int(iotype = 'in', desc = 'number of turbines at plant')
+    bos_costs = Float(iotype='in', desc='A Wind Plant Balance of Station _cost Model')
+    avg_annual_opex = Float(iotype='in', desc='A Wind Plant Operations Expenditures Model')
+    net_aep = Float(iotype='in', desc='A Wind Plant Annual Energy Production Model', units='kW*h')
 
     # parameters
     fixed_charge_rate = Float(0.12, iotype = 'in', desc = 'fixed charge rate for coe calculation')
     tax_rate = Float(0.4, iotype = 'in', desc = 'tax rate applied to operations')
     offshore = Bool(True, iotype = 'in', desc = 'boolean for offshore')
 
+    #Outputs
+    coe = Float(iotype='out', desc='Levelized cost of energy for the wind plant')
+
     def configure(self):
 
-        super(fin_cst_assembly, self).configure()
+        configure_base_finance(self)
 
         self.replace('fin', fin_cst_component())
 
@@ -31,45 +42,30 @@ class fin_cst_assembly(BaseFinancialModel):
         self.connect('tax_rate','fin.tax_rate')
         self.connect('offshore','fin.offshore')
 
-class fin_cst_component(BaseFinancialAggregator):
+@implement_base(BaseFinancialAggregator)
+class fin_cst_component(Component):
+
+    # Inputs
+    turbine_cost = Float(iotype='in', desc = 'A Wind Turbine Capital _cost')
+    turbine_number = Int(iotype = 'in', desc = 'number of turbines at plant')
+    bos_costs = Float(iotype='in', desc='A Wind Plant Balance of Station _cost Model')
+    avg_annual_opex = Float(iotype='in', desc='A Wind Plant Operations Expenditures Model')
+    net_aep = Float(iotype='in', desc='A Wind Plant Annual Energy Production Model', units='kW*h')
 
     # parameters
     fixed_charge_rate = Float(0.12, iotype = 'in', desc = 'fixed charge rate for coe calculation')
     tax_rate = Float(0.4, iotype = 'in', desc = 'tax rate applied to operations')
     offshore = Bool(True, iotype = 'in', desc = 'boolean for offshore')
 
+    #Outputs
+    coe = Float(iotype='out', desc='Levelized cost of energy for the wind plant')
+
     def __init__(self):
         """
         OpenMDAO component to wrap finance model of the NREL Cost and Scaling Model (csmFinance.py)
-
-        Parameters
-        ----------
-        fixedChargeRate : float
-          fixed charge rate for coe calculation
-        taxRate : float
-          tax rate applied to operations
-        turbineNumber : int
-          number of turbines at plant
-        aep : float
-          Annual energy production [kWh]
-        turbineCost : float
-          Turbine capital costs [USD per turbine]
-        BOScost : float
-          Balance of station costs total [USD]
-        preventativeMaintenanceCost : float
-          O&M costs annual total [USD]
-        correctiveMaintenanceCost : float
-          levelized replacement costs annual total [USD]
-        landLeaseCost : float
-          land lease costs annual total [USD]
-
-        Returns
-        -------
-        lcoe : float
-          Cost of energy - levelized [USD/kWh]
         """
 
-        super(fin_cst_component, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'

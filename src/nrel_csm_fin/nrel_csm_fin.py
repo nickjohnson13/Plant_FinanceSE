@@ -8,13 +8,22 @@ Copyright (c) NREL. All rights reserved.
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
 from openmdao.main.datatypes.api import Int, Bool, Float, Array, Enum, VarTree
 
-from fusedwind.plant_cost.fused_fin_asym import BaseFinancialModel, BaseFinancialAggregator
+from fusedwind.plant_cost.fused_finance import BaseFinancialModel, BaseFinancialAggregator, configure_base_finance
+from fusedwind.interface import implement_base
 
 import numpy as np
 
 # -------------------------------------------------------------------
 
-class fin_csm_assembly(BaseFinancialModel):
+@implement_base(BaseFinancialModel)
+class fin_csm_assembly(Assembly):
+
+    # Inputs
+    turbine_cost = Float(iotype='in', desc = 'A Wind Turbine Capital _cost')
+    turbine_number = Int(iotype = 'in', desc = 'number of turbines at plant')
+    bos_costs = Float(iotype='in', desc='A Wind Plant Balance of Station _cost Model')
+    avg_annual_opex = Float(iotype='in', desc='A Wind Plant Operations Expenditures Model')
+    net_aep = Float(iotype='in', desc='A Wind Plant Annual Energy Production Model', units='kW*h')
 
     # parameters
     fixed_charge_rate = Float(0.12, iotype = 'in', desc = 'fixed charge rate for coe calculation')
@@ -25,12 +34,13 @@ class fin_csm_assembly(BaseFinancialModel):
     project_lifetime = Float(20.0, iotype = 'in', desc = 'project lifetime for LCOE calculation')
     sea_depth = Float(20.0, iotype='in', units='m', desc = 'depth of project for offshore, (0 for onshore)')
 
-    # output
+    #Outputs
+    coe = Float(iotype='out', desc='Levelized cost of energy for the wind plant')
     lcoe = Float(iotype='out', desc='_cost of energy - unlevelized')
 
     def configure(self):
 
-        super(fin_csm_assembly, self).configure()
+        configure_base_finance(self)
 
         self.replace('fin', fin_csm_component())
 
@@ -45,7 +55,15 @@ class fin_csm_assembly(BaseFinancialModel):
 
         self.connect('fin.lcoe','lcoe')
 
-class fin_csm_component(BaseFinancialAggregator):
+@implement_base(BaseFinancialAggregator)
+class fin_csm_component(Component):
+
+    # Inputs
+    turbine_cost = Float(iotype='in', desc = 'A Wind Turbine Capital _cost')
+    turbine_number = Int(iotype = 'in', desc = 'number of turbines at plant')
+    bos_costs = Float(iotype='in', desc='A Wind Plant Balance of Station _cost Model')
+    avg_annual_opex = Float(iotype='in', desc='A Wind Plant Operations Expenditures Model')
+    net_aep = Float(iotype='in', desc='A Wind Plant Annual Energy Production Model', units='kW*h')
 
     # parameters
     fixed_charge_rate = Float(0.12, iotype = 'in', desc = 'fixed charge rate for coe calculation')
@@ -56,7 +74,8 @@ class fin_csm_component(BaseFinancialAggregator):
     project_lifetime = Float(20.0, iotype = 'in', desc = 'project lifetime for LCOE calculation')
     sea_depth = Float(20.0, iotype='in', units='m', desc = 'depth of project for offshore, (0 for onshore)')
 
-    # output
+    #Outputs
+    coe = Float(iotype='out', desc='Levelized cost of energy for the wind plant')
     lcoe = Float(iotype='out', desc='_cost of energy - unlevelized')
 
     def __init__(self):
@@ -65,7 +84,7 @@ class fin_csm_component(BaseFinancialAggregator):
 
         """
 
-        super(fin_csm_component, self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'
