@@ -2,6 +2,10 @@ Plant_FinanceSE is a set of models for assessing overall wind plant cost of ener
 
 Author: [K. Dykes](mailto:katherine.dykes@nrel.gov)
 
+## Detailed Documentation
+
+For detailed documentation see <http://wisdem.github.io/Plant_FinanceSE/>
+
 ## Prerequisites
 
 NumPy, SciPy, FUSED-Wind, OpenMDAO
@@ -26,6 +30,3 @@ You may also run the unit tests.
 
 	$ python src/test/test_Plant_FinanceSE_gradients.py
 
-## Detailed Documentation
-
-Online documentation is available at <http://wisdem.github.io/Plant_FinanceSE/>

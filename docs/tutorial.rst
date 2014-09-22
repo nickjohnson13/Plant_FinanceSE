@@ -9,7 +9,7 @@ Tutorial
 Tutorial for NREL_CSM_Fin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As an example of NREL_CSM_Fin, let us simulate using cost inputs for a hypothetical wind plant of 50 5 MW turbines at an offshore site.    
+As an example of NREL_CSM_Fin, let us calculate a wind plant cost of energy using cost inputs for a hypothetical wind plant of 50 5 MW turbines at an offshore site.    
 
 The first step is to import the relevant files and set up the component.
 
@@ -30,7 +30,7 @@ We can now evaluate the cost of energy for the wind plant.
     :end-before: # 3 ---
 
 
-We then print out the resulting cost values
+We then print out the resulting cost values:
 
 .. literalinclude:: examples/example.py
     :start-after: # 4 ---
@@ -67,13 +67,13 @@ We can now evaluate the cost of energy for the wind plant.
     :end-before: # 7 ---
 
 
-We then print out the resulting cost values
+We then print out the resulting cost values.
 
 .. literalinclude:: examples/example.py
     :start-after: # 8 ---
     :end-before: # 8 ---
 
-The result is
+The result is:
 
 >>> Offshore plant cost
 >>> coe: 0.1307
