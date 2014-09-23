@@ -1,7 +1,7 @@
 # 1 ---------
 
 # A simple test of nrel_csm_fin model
-from nrel_csm_fin.nrel_csm_fin import fin_csm_assembly
+from plant_financese.nrel_csm_fin.nrel_csm_fin import fin_csm_assembly
 
 fin = fin_csm_assembly()
 
@@ -26,15 +26,16 @@ fin.run()
 # 3 ---------
 # 4 --------- 
 
-print "Offshore plant cost"
-print "lcoe: {0}".format(fin.lcoe)
-print "coe: {0}".format(fin.coe)
+print "Cost of energy for offshore wind plant with 50 NREL 5 MW Reference Turbines"
+print "Levelized COE: {0}".format(fin.lcoe)
+print "COE: {0}".format(fin.coe)
+print
 
 # 4 ----------
 # 5 ----------
 
 # A simple test of basic_finance model
-from basic_finance.basic_finance import fin_cst_assembly
+from plant_financese.basic_finance.basic_finance import fin_cst_assembly
 
 fin2 = fin_cst_assembly()
 
@@ -58,7 +59,7 @@ fin2.run()
 # 7 ----------
 # 8 ----------
 
-print "Offshore wind plant cost"
-print "coe: {0}".format(fin2.coe)
+print "Cost of energy for offshore wind plant with 50 NREL 5 MW Reference Turbines"
+print "COE: ${0:.2f} USD".format(fin.coe)
 
 # 8 -----------

@@ -81,7 +81,7 @@ class fin_cst_component(Component):
            warrantyPremium = (self.turbine_cost * self.turbine_number / 1.10) * 0.15
            icc = self.turbine_cost * self.turbine_number + warrantyPremium + self.bos_costs
         else:
-           icc = self.turbine_cost * self.turbine_number + self.bos_cost
+           icc = self.turbine_cost * self.turbine_number + self.bos_costs
 
         # compute COE and LCOE values
         self.coe = (icc * self.fixed_charge_rate + self.avg_annual_opex * (1-self.tax_rate)) / self.net_aep
@@ -97,7 +97,7 @@ class fin_cst_component(Component):
 
     def list_deriv_vars(self):
 
-        inputs = ['turbine_cost', 'bos_cost', 'avg_annual_opex', 'net_aep']
+        inputs = ['turbine_cost', 'bos_costs', 'avg_annual_opex', 'net_aep']
         outputs = ['coe']
 
         return inputs, outputs
@@ -124,8 +124,8 @@ def example():
     fin.net_aep = 15756299.843
 
     fin.run()
-    print "Offshore wind plant cost"
-    print "coe: {0}".format(fin.coe)
+    print "Cost of energy for offshore wind plant with 50 NREL 5 MW Reference Turbines"
+    print "COE: ${0:.2f} USD".format(fin.coe)
 
 if __name__ == "__main__":
 

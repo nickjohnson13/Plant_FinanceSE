@@ -23,10 +23,11 @@ It is not recommended to install the software outside of OpenMDAO.
 To check if installation was successful try to import the module
 
 	$ python
-	> import basic_finance.coe_fin
-	> import nrel_csm_fin.nrel_csm_fin
+	> import plant_financese.basic_finance.coe_fin
+	> import plant_financese.nrel_csm_fin.nrel_csm_fin
 
-You may also run the unit tests.
+You may also run the unit tests which include functional and gradient tests.  Analytic gradients are provided for variables only so warnings will appear for missing gradients on model input parameters; these can be ignored.
 
 	$ python src/test/test_Plant_FinanceSE_gradients.py
 
+For software issues please use <https://github.com/WISDEM/Plant_FinanceSE/issues>.  For functionality and theory related questions and comments please use the NWTC forum for [Systems Engineering Software Questions](https://wind.nrel.gov/forum/wind/viewtopic.php?f=34&t=1002).

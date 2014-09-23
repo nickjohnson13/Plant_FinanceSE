@@ -165,9 +165,9 @@ def example():
     fin.net_aep = 15756299.843
 
     fin.run()
-    print "Offshore  plant cost"
-    print "lcoe: {0}".format(fin.lcoe)
-    print "coe: {0}".format(fin.coe)
+    print "Cost of energy for offshore wind plant with 50 NREL 5 MW Reference Turbines"
+    print "Levelized COE: {0}".format(fin.lcoe)
+    print "COE: {0}".format(fin.coe)
 
 if __name__ == "__main__":
 

@@ -16,7 +16,7 @@ kwargs = {'author': 'Katherine Dykes',
  'name': 'Plant_FinanceSE',
  'package_data': {'Plant_FinanceSE': []},
  'package_dir': {'': 'src'},
- 'packages': ['nrel_csm_fin', 'basic_finance'],
+ 'packages': ['plant_financese.nrel_csm_fin', 'plant_financese.basic_finance','test'],
  'zip_safe': False}
 
 
