@@ -2,6 +2,10 @@ Plant_FinanceSE is a set of models for assessing overall wind plant cost of ener
 
 Author: [K. Dykes](mailto:katherine.dykes@nrel.gov)
 
+## Version
+
+This software is a beta version 0.1.0.
+
 ## Detailed Documentation
 
 For detailed documentation see <http://wisdem.github.io/Plant_FinanceSE/>
