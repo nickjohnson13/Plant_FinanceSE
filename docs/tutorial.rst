@@ -17,7 +17,7 @@ The first step is to import the relevant files and set up the component.
     :start-after: # 1 ---
     :end-before: # 1 ---
 
-The plant finance model depends on the costs of the turbine, balance of station, expected operational expenditures, energy production and a few financial parameters.  The default settings for the financial parameters are used so no inputs are specified.
+The plant finance model depends on the costs of the turbine, balance of station, expected operational expenditures, energy production and a few financial parameters.  The default settings for the financial parameters are used - including a fixed charge rate for coe, the construction financing charge rate, the tax rate for opex tax deductions, the time for plant construction, the project lifetime and the sea depth (which would be 0.0 for a land-based plant).
 
 .. literalinclude:: examples/example.py
     :start-after: # 2 ---
@@ -54,7 +54,7 @@ The first step is to import the relevant files and set up the component.
     :start-after: # 5 ---
     :end-before: # 5 ---
 
-The plant finance model depends on the costs of the turbine, balance of station, expected operational expenditures, energy production and a few financial parameters.  The default settings for the financial parameters are used so no inputs are specified.
+The plant finance model depends on the costs of the turbine, balance of station, expected operational expenditures, energy production and a few financial parameters.  The default settings for the financial parameters are used - including a fixed charge rate for coe, the tax rate for opex tax deductions, and a boolean for whether it is offshore or land-based.
 
 .. literalinclude:: examples/example.py
     :start-after: # 6 ---

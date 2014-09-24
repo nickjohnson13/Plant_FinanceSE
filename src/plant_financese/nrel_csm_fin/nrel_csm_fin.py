@@ -164,10 +164,18 @@ def example():
     fin.bos_costs = 7668775.3
     fin.net_aep = 15756299.843
 
+    fin.fixed_charge_rate = 0.12
+    fin.construction_finance_rate = 0.00
+    fin.tax_rate = 0.4
+    fin.discount_rate = 0.07
+    fin.construction_time = 1.0
+    fin.project_lifetime = 20.0
+    fin.sea_depth = 20.0
+
     fin.run()
     print "Cost of energy for offshore wind plant with 50 NREL 5 MW Reference Turbines"
-    print "Levelized COE: {0}".format(fin.lcoe)
-    print "COE: {0}".format(fin.coe)
+    print "Levelized COE: ${0:.4f} USD/kW".format(fin.lcoe)
+    print "COE: ${0:.4f} USD/kW".format(fin.coe)
 
 if __name__ == "__main__":
 
