@@ -62,7 +62,7 @@
 <span class="n">fin</span> <span class="o">=</span> <span class="n">fin_csm_assembly</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The plant finance model depends on the costs of the turbine, balance of station, expected operational expenditures, energy production and a few financial parameters.  The default settings for the financial parameters are used so no inputs are specified.</p>
+<p>The plant finance model depends on the costs of the turbine, balance of station, expected operational expenditures, energy production and a few financial parameters.  The default settings for the financial parameters are used - including a fixed charge rate for coe, the construction financing charge rate, the tax rate for opex tax deductions, the time for plant construction, the project lifetime and the sea depth (which would be 0.0 for a land-based plant).</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Plant cost and energy production inputs</span>
 <span class="n">fin</span><span class="o">.</span><span class="n">turbine_cost</span> <span class="o">=</span> <span class="mf">6087803.555</span> <span class="o">/</span> <span class="mi">50</span>
 <span class="n">fin</span><span class="o">.</span><span class="n">turbine_number</span> <span class="o">=</span> <span class="mi">50</span>
@@ -72,6 +72,14 @@
 <span class="n">fin</span><span class="o">.</span><span class="n">avg_annual_opex</span> <span class="o">=</span> <span class="n">preventative_opex</span> <span class="o">+</span> <span class="n">corrective_opex</span> <span class="o">+</span> <span class="n">lease_opex</span>
 <span class="n">fin</span><span class="o">.</span><span class="n">bos_costs</span> <span class="o">=</span> <span class="mf">7668775.3</span>
 <span class="n">fin</span><span class="o">.</span><span class="n">net_aep</span> <span class="o">=</span> <span class="mf">15756299.843</span>
+
+<span class="n">fin</span><span class="o">.</span><span class="n">fixed_charge_rate</span> <span class="o">=</span> <span class="mf">0.12</span>
+<span class="n">fin</span><span class="o">.</span><span class="n">construction_finance_rate</span> <span class="o">=</span> <span class="mf">0.00</span>
+<span class="n">fin</span><span class="o">.</span><span class="n">tax_rate</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">fin</span><span class="o">.</span><span class="n">discount_rate</span> <span class="o">=</span> <span class="mf">0.07</span>
+<span class="n">fin</span><span class="o">.</span><span class="n">construction_time</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">fin</span><span class="o">.</span><span class="n">project_lifetime</span> <span class="o">=</span> <span class="mf">20.0</span>
+<span class="n">fin</span><span class="o">.</span><span class="n">sea_depth</span> <span class="o">=</span> <span class="mf">20.0</span>
 </pre></div>
 </div>
 <p>We can now evaluate the cost of energy for the wind plant.</p>
@@ -80,8 +88,8 @@
 </div>
 <p>We then print out the resulting cost values:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="s">&quot;Cost of energy for offshore wind plant with 50 NREL 5 MW Reference Turbines&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Levelized COE: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fin</span><span class="o">.</span><span class="n">lcoe</span><span class="p">)</span>
-<span class="k">print</span> <span class="s">&quot;COE: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fin</span><span class="o">.</span><span class="n">coe</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;Levelized COE: ${0:.4f} USD/kW&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fin</span><span class="o">.</span><span class="n">lcoe</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;COE: ${0:.4f} USD/kW&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fin</span><span class="o">.</span><span class="n">coe</span><span class="p">)</span>
 <span class="k">print</span>
 </pre></div>
 </div>
@@ -102,7 +110,7 @@
 <span class="n">fin2</span> <span class="o">=</span> <span class="n">fin_cst_assembly</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The plant finance model depends on the costs of the turbine, balance of station, expected operational expenditures, energy production and a few financial parameters.  The default settings for the financial parameters are used so no inputs are specified.</p>
+<p>The plant finance model depends on the costs of the turbine, balance of station, expected operational expenditures, energy production and a few financial parameters.  The default settings for the financial parameters are used - including a fixed charge rate for coe, the tax rate for opex tax deductions, and a boolean for whether it is offshore or land-based.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">fin2</span><span class="o">.</span><span class="n">turbine_cost</span> <span class="o">=</span> <span class="mf">6087803.555</span> <span class="o">/</span> <span class="mi">50</span>
 <span class="n">fin2</span><span class="o">.</span><span class="n">turbine_number</span> <span class="o">=</span> <span class="mi">50</span>
 <span class="n">preventative_maintenance_cost</span> <span class="o">=</span> <span class="mf">401819.023</span>
@@ -111,6 +119,10 @@
 <span class="n">fin2</span><span class="o">.</span><span class="n">avg_annual_opex</span> <span class="o">=</span> <span class="n">preventative_maintenance_cost</span> <span class="o">+</span> <span class="n">corrective_maintenance_cost</span> <span class="o">+</span> <span class="n">land_lease_cost</span>
 <span class="n">fin2</span><span class="o">.</span><span class="n">bos_costs</span> <span class="o">=</span> <span class="mf">7668775.3</span>
 <span class="n">fin2</span><span class="o">.</span><span class="n">net_aep</span> <span class="o">=</span> <span class="mf">15756299.843</span>
+
+<span class="n">fin</span><span class="o">.</span><span class="n">fixed_charge_rate</span> <span class="o">=</span> <span class="mf">0.12</span>
+<span class="n">fin</span><span class="o">.</span><span class="n">tax_rate</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">fin</span><span class="o">.</span><span class="n">offshore</span> <span class="o">=</span> <span class="bp">True</span>
 </pre></div>
 </div>
 <p>We can now evaluate the cost of energy for the wind plant.</p>
@@ -119,7 +131,7 @@
 </div>
 <p>We then print out the resulting cost values.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="s">&quot;Cost of energy for offshore wind plant with 50 NREL 5 MW Reference Turbines&quot;</span>
-<span class="k">print</span> <span class="s">&quot;COE: ${0:.2f} USD&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fin</span><span class="o">.</span><span class="n">coe</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;COE: ${0:.4f} USD/kWh&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fin</span><span class="o">.</span><span class="n">coe</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The result is:</p>
@@ -190,7 +202,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, NREL.
-      Last updated on Sep 23, 2014.
+      Last updated on Sep 24, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
