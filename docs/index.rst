@@ -5,7 +5,7 @@ Plant_FinanceSE
 
     Plant finance models for wind plant cost of energy.
 
-    Author: `Katherine Dykes <mailto:katherine.dykes@nrel.gov>`_
+    Author: `Katherine Dykes <mailto:nrel.wisdem+plantfinancese@gmail.com>`_
 
     .. rubric:: Table of Contents
 
