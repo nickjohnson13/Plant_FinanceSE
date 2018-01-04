@@ -4,7 +4,7 @@ Author: [K. Dykes](mailto:nrel.wisdem+plantfinancese@gmail.com)
 
 ## Version
 
-This software is a beta version 0.1.0.
+This software is a beta version 0.1.1.
 
 ## Detailed Documentation
 
