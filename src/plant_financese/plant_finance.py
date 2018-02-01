@@ -19,8 +19,8 @@ class PlantFinance(Component):
         self.add_param('fixed_charge_rate', val=0.12, desc = 'fixed charge rate for coe calculation')
         self.add_param('tax_rate', val=0.4, desc = 'tax rate applied to operations')
         self.add_param('discount_rate', val=0.07, desc = 'applicable project discount rate')
-        self.add_param('construction_time', val=1.0, units='years', desc = 'number of years to complete project construction')
-        self.add_param('project_lifetime', val=20.0, units='years', desc = 'project lifetime for LCOE calculation')
+        self.add_param('construction_time', val=1.0, units='year', desc = 'number of years to complete project construction')
+        self.add_param('project_lifetime', val=20.0, units='year', desc = 'project lifetime for LCOE calculation')
         self.add_param('sea_depth', val=20.0, units='m', desc = 'depth of project for offshore, (0 for onshore)')
 
         #Outputs
