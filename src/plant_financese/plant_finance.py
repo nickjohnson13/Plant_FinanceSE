@@ -11,8 +11,8 @@ class PlantFinance(Component):
         # Inputs
         self.add_param('turbine_cost' ,     val=0.0, units='USD',   desc='A wind turbine capital cost')
         self.add_param('turbine_number',    val=0,                  desc='Number of turbines at plant', pass_by_obj=True)
-        self.add_param('bos_costs',         val=0.0, units='USD',   desc='A wind plant balance of station cost model')
-        self.add_param('avg_annual_opex',   val=0.0, units='USD',   desc='A wind plant operations expenditures model')
+        self.add_param('turbine_bos_costs', val=0.0, units='USD',   desc='Balance of system costs of the turbine')
+        self.add_param('turbine_avg_annual_opex',val=0.0, units='USD',desc='Average annual operational expenditures of the turbine')
         self.add_param('park_aep',          val=0.0, units='kW*h',  desc='Annual Energy Production of the wind plant')
         self.add_param('turbine_aep',       val=0.0, units='kW*h',  desc='Annual Energy Production of the wind turbine')
         self.add_param('wake_loss_factor',  val=0.0,                desc='The losses in AEP due to waked conditions')
@@ -37,8 +37,8 @@ class PlantFinance(Component):
         depth       = params['sea_depth']
         n_turbine   = params['turbine_number']
         c_turbine   = params['turbine_cost']
-        c_bos       = params['bos_costs']
-        c_opex      = params['avg_annual_opex']
+        c_bos_turbine  = params['turbine_bos_costs']
+        c_opex_turbine = params['turbine_avg_annual_opex']
         fcr         = params['fixed_charge_rate']
         tax         = params['tax_rate']
         r           = params['discount_rate']
@@ -58,11 +58,11 @@ class PlantFinance(Component):
         if c_turbine == 0:
             exit('ERROR: The cost of the turbines in the plant is not initialized correctly and it is currently equal to 0 USD. Check the connections to Plant_FinanceSE')
             
-        if c_bos == 0:
-            print('WARNING: The BoS costs of the plant are not initialized correctly and it is currently equal to 0 USD. Check the connections to Plant_FinanceSE')
+        if c_bos_turbine == 0:
+            print('WARNING: The BoS costs of the turbine are not initialized correctly and they are currently equal to 0 USD. Check the connections to Plant_FinanceSE')
         
-        if c_opex == 0:
-            print('WARNING: The Opex costs of the plant are not initialized correctly and it is currently equal to 0 USD. Check the connections to Plant_FinanceSE')
+        if c_opex_turbine == 0:
+            print('WARNING: The Opex costs of the turbine are not initialized correctly and they are currently equal to 0 USD. Check the connections to Plant_FinanceSE')
         
         if park_aep == 0:
             if turb_aep != 0:
@@ -71,11 +71,13 @@ class PlantFinance(Component):
                 exit('ERROR: AEP is not connected properly. Both turbine_aep and park_aep are currently equal to 0 Wh. Check the connections to Plant_FinanceSE')
         
         
-        icc = c_turbine * n_turbine + c_bos
+        icc     = n_turbine * (c_turbine + c_bos_turbine)
+        c_opex  = n_turbine * c_opex_turbine
+        
         if offshore:
            # warranty Premium 
            icc += (c_turbine * n_turbine / 1.10) * 0.15
-
+        
         #compute COE and LCOE values
         unknowns['coe'] = (icc*fcr + c_opex*(1-tax)) / park_aep
 
@@ -89,8 +91,10 @@ class PlantFinance(Component):
             print('Water depth                      %.2f m'     % depth)
             print('Number of turbines in the park   %u'         % n_turbine)
             print('Cost of the single turbine       %.3f M USD' % (c_turbine * 1.e-006))  
-            print('BoS costs                        %.3f M USD' % (c_bos * 1.e-006))  
-            print('Opex costs                       %.3f M USD' % (c_opex * 1.e-006))      
+            print('BoS costs of the single turbine  %.3f M USD' % (c_bos_turbine * 1.e-006))  
+            print('Initial capital cost of the park %.3f M USD' % (icc * 1.e-006))  
+            print('Opex costs of the single turbine %.3f M USD' % (c_opex_turbine * 1.e-006))
+            print('Opex costs of the park           %.3f M USD' % (c_opex * 1.e-006))              
             print('Fixed charge rate                %.2f %%'    % (fcr * 100.))     
             print('Tax rate                         %.2f %%'    % (tax * 100.))        
             print('Discount rate                    %.2f %%'    % (r * 100.))        
@@ -110,9 +114,6 @@ class PlantFinance(Component):
         # Unpack parameters
         depth       = params['sea_depth']
         n_turbine   = params['turbine_number']
-        c_turbine   = params['turbine_cost']
-        c_bos       = params['bos_costs']
-        c_opex      = params['avg_annual_opex']
         fcr         = params['fixed_charge_rate']
         tax         = params['tax_rate']
         r           = params['discount_rate']
@@ -128,15 +129,6 @@ class PlantFinance(Component):
         # Run a few checks on the inputs
         if n_turbine == 0:
             exit('ERROR: The number of the turbines in the plant is not initialized correctly and it is currently equal to 0. Check the connections to Plant_FinanceSE')
-        
-        if c_turbine == 0:
-            exit('ERROR: The cost of the turbines in the plant is not initialized correctly and it is currently equal to 0 USD. Check the connections to Plant_FinanceSE')
-            
-        if c_bos == 0:
-            print('WARNING: The BoS costs of the plant are not initialized correctly and it is currently equal to 0 USD. Check the connections to Plant_FinanceSE')
-        
-        if c_opex == 0:
-            print('WARNING: The Opex costs of the plant are not initialized correctly and it is currently equal to 0 USD. Check the connections to Plant_FinanceSE')
         
         if park_aep == 0:
             if turb_aep != 0:
