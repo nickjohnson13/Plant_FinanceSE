@@ -1,52 +1,56 @@
-from openmdao.api import Component
+from openmdao.api import ExplicitComponent
 
 import numpy as np
 
-class PlantFinance(Component):
-    def __init__(self, verbosity = False):
-        super(PlantFinance, self).__init__()
-
+class PlantFinance(ExplicitComponent):
+    def initialize(self):
+        self.options.declare(verbosity, default=False)
+        
+    def setup(self):
+        self.verbosity = self.options['verbosity']
+        
         self.amortFactor = None
         
         # Inputs
-        self.add_param('turbine_cost' ,     val=0.0, units='USD',   desc='A wind turbine capital cost')
-        self.add_param('turbine_number',    val=0,                  desc='Number of turbines at plant', pass_by_obj=True)
-        self.add_param('turbine_bos_costs', val=0.0, units='USD',   desc='Balance of system costs of the turbine')
-        self.add_param('turbine_avg_annual_opex',val=0.0, units='USD',desc='Average annual operational expenditures of the turbine')
-        self.add_param('park_aep',          val=0.0, units='kW*h',  desc='Annual Energy Production of the wind plant')
-        self.add_param('turbine_aep',       val=0.0, units='kW*h',  desc='Annual Energy Production of the wind turbine')
-        self.add_param('wake_loss_factor',  val=0.0,                desc='The losses in AEP due to waked conditions')
+        self.add_input('turbine_cost' ,     val=0.0, units='USD',   desc='A wind turbine capital cost')
+        self.add_discrete_input('turbine_number',    val=0,                  desc='Number of turbines at plant')
+        self.add_input('turbine_bos_costs', val=0.0, units='USD',   desc='Balance of system costs of the turbine')
+        self.add_input('turbine_avg_annual_opex',val=0.0, units='USD',desc='Average annual operational expenditures of the turbine')
+        self.add_input('park_aep',          val=0.0, units='kW*h',  desc='Annual Energy Production of the wind plant')
+        self.add_input('turbine_aep',       val=0.0, units='kW*h',  desc='Annual Energy Production of the wind turbine')
+        self.add_input('wake_loss_factor',  val=0.0,                desc='The losses in AEP due to waked conditions')
 
         # parameters
-        self.add_param('fixed_charge_rate', val=0.12,               desc = 'Fixed charge rate for coe calculation')
-        self.add_param('tax_rate',          val=0.4,                desc = 'Tax rate applied to operations')
-        self.add_param('discount_rate',     val=0.07,               desc = 'Applicable project discount rate')
-        self.add_param('construction_time', val=1.0,  units='year', desc = 'Number of years to complete project construction')
-        self.add_param('project_lifetime',  val=20.0, units='year', desc = 'Project lifetime for LCOE calculation')
-        self.add_param('sea_depth',         val=20.0, units='m',    desc = 'Sea depth of project for offshore, (0 for onshore)')
+        self.add_input('fixed_charge_rate', val=0.12,               desc = 'Fixed charge rate for coe calculation')
+        self.add_input('tax_rate',          val=0.4,                desc = 'Tax rate applied to operations')
+        self.add_input('discount_rate',     val=0.07,               desc = 'Applicable project discount rate')
+        self.add_input('construction_time', val=1.0,  units='year', desc = 'Number of years to complete project construction')
+        self.add_input('project_lifetime',  val=20.0, units='year', desc = 'Project lifetime for LCOE calculation')
+        self.add_input('sea_depth',         val=20.0, units='m',    desc = 'Sea depth of project for offshore, (0 for onshore)')
 
         #Outputs
         self.add_output('lcoe',             val=0.0, units='USD/kW',desc='Levelized cost of energy for the wind plant')
         self.add_output('coe',              val=0.0, units='USD/kW',desc='Cost of energy for the wind plant - unlevelized')
-        
-        self.verbosity = verbosity
-        
+
+        self.declare_partials('coe' , ['turbine_cost', 'bos_cost', 'avg_annual_opex', 'net_aep'])
+        self.declare_partials('lcoe', ['turbine_cost', 'bos_cost', 'avg_annual_opex', 'net_aep'])
+ 
     
-    def solve_nonlinear(self, params, unknowns, resids):
+    def compute(self, inputs, outputs):
         # Unpack parameters
-        depth       = params['sea_depth']
-        n_turbine   = params['turbine_number']
-        c_turbine   = params['turbine_cost']
-        c_bos_turbine  = params['turbine_bos_costs']
-        c_opex_turbine = params['turbine_avg_annual_opex']
-        fcr         = params['fixed_charge_rate']
-        tax         = params['tax_rate']
-        r           = params['discount_rate']
-        wlf         = params['wake_loss_factor']
-        turb_aep    = params['turbine_aep']
-        park_aep    = params['park_aep']
-        t_construct = params['construction_time']
-        t_project   = params['project_lifetime']
+        depth       = inputs['sea_depth']
+        n_turbine   = inputs['turbine_number']
+        c_turbine   = inputs['turbine_cost']
+        c_bos_turbine  = inputs['turbine_bos_costs']
+        c_opex_turbine = inputs['turbine_avg_annual_opex']
+        fcr         = inputs['fixed_charge_rate']
+        tax         = inputs['tax_rate']
+        r           = inputs['discount_rate']
+        wlf         = inputs['wake_loss_factor']
+        turb_aep    = inputs['turbine_aep']
+        park_aep    = inputs['park_aep']
+        t_construct = inputs['construction_time']
+        t_project   = inputs['project_lifetime']
         
         # Handy offshore boolean flag
         offshore = (depth > 0.0)
@@ -79,10 +83,10 @@ class PlantFinance(Component):
            icc += (c_turbine * n_turbine / 1.10) * 0.15
         
         #compute COE and LCOE values
-        unknowns['coe'] = (icc*fcr + c_opex*(1-tax)) / park_aep
+        outputs['coe'] = (icc*fcr + c_opex*(1-tax)) / park_aep
 
         self.amortFactor = (1. + 0.5 * ((1. + r)**t_construct - 1.)) * (r / (1. - (1. + r)**(-t_project)))
-        unknowns['lcoe'] = (icc * self.amortFactor + c_opex) / park_aep
+        outputs['lcoe'] = (icc * self.amortFactor + c_opex) / park_aep
         
         if self.verbosity == True:
             print('################################################')
@@ -104,24 +108,24 @@ class PlantFinance(Component):
             print('Construction time                %.2f yr'    % t_construct) 
             print('Project lifetime                 %.2f yr'    % t_project)
             print('Outputs:')
-            print('CoE                              %.3f USD/MW' % (unknowns['coe']  * 1.e003))
-            print('LCoE                             %.3f USD/MW' % (unknowns['lcoe'] * 1.e003))
+            print('CoE                              %.3f USD/MW' % (outputs['coe']  * 1.e003))
+            print('LCoE                             %.3f USD/MW' % (outputs['lcoe'] * 1.e003))
             print('################################################')
             
                     
 
-    def linearize(self, params, unknowns, resids):
+    def compute_partials(self, inputs, J):
         # Unpack parameters
-        depth       = params['sea_depth']
-        n_turbine   = params['turbine_number']
-        fcr         = params['fixed_charge_rate']
-        tax         = params['tax_rate']
-        r           = params['discount_rate']
-        wlf         = params['wake_loss_factor']
-        turb_aep    = params['turbine_aep']
-        park_aep    = params['park_aep']
-        t_construct = params['construction_time']
-        t_project   = params['project_lifetime']
+        depth       = inputs['sea_depth']
+        n_turbine   = inputs['turbine_number']
+        fcr         = inputs['fixed_charge_rate']
+        tax         = inputs['tax_rate']
+        r           = inputs['discount_rate']
+        wlf         = inputs['wake_loss_factor']
+        turb_aep    = inputs['turbine_aep']
+        park_aep    = inputs['park_aep']
+        t_construct = inputs['construction_time']
+        t_project   = inputs['project_lifetime']
 
         # Handy offshore boolean flag
         offshore = (depth > 0.0)
@@ -152,7 +156,7 @@ class PlantFinance(Component):
         dlcoe_dopex  = 1.0                            / park_aep
         dlcoe_daep   = -unknowns['lcoe']              / park_aep
 
-        J = {}
+        
         J['coe' , 'turbine_cost'   ] = dcoe_dcturb
         J['coe' , 'bos_cost'       ] = dcoe_dcbos
         J['coe' , 'avg_annual_opex'] = dcoe_dopex
@@ -162,7 +166,7 @@ class PlantFinance(Component):
         J['lcoe', 'avg_annual_opex'] = dlcoe_dopex
         J['lcoe', 'net_aep'        ] = dlcoe_daep
         
-        return J
+        
         
 
         
