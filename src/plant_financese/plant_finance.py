@@ -7,9 +7,8 @@ class PlantFinance(ExplicitComponent):
         self.options.declare(verbosity, default=False)
         
     def setup(self):
-        self.verbosity = self.options['verbosity']
-        
         self.amortFactor = None
+        self.outputSave = {}
         
         # Inputs
         self.add_input('turbine_cost' ,     val=0.0, units='USD',   desc='A wind turbine capital cost')
@@ -87,8 +86,10 @@ class PlantFinance(ExplicitComponent):
 
         self.amortFactor = (1. + 0.5 * ((1. + r)**t_construct - 1.)) * (r / (1. - (1. + r)**(-t_project)))
         outputs['lcoe'] = (icc * self.amortFactor + c_opex) / park_aep
+        self.outputSave['coe'] = outputs['coe']
+        self.outputSave['lcoe'] = outputs['lcoe']
         
-        if self.verbosity == True:
+        if self.options['verbosity']
             print('################################################')
             print('Computation of CoE and LCoE from Plant_FinanceSE')
             print('Inputs:')
@@ -149,12 +150,12 @@ class PlantFinance(ExplicitComponent):
         dcoe_dcturb = dicc_dcturb * fcr / park_aep
         dcoe_dcbos  = dicc_dcbos  * fcr / park_aep
         dcoe_dopex  = (1. - tax)        / park_aep
-        dcoe_daep   = -unknowns['coe']  / park_aep
+        dcoe_daep   = -self.outputSave['coe']  / park_aep
 
         dlcoe_dcturb = dicc_dcturb * self.amortFactor / park_aep
         dlcoe_dcbos  = dicc_dcbos  * self.amortFactor / park_aep
         dlcoe_dopex  = 1.0                            / park_aep
-        dlcoe_daep   = -unknowns['lcoe']              / park_aep
+        dlcoe_daep   = -self.outputSave['lcoe']              / park_aep
 
         
         J['coe' , 'turbine_cost'   ] = dcoe_dcturb
