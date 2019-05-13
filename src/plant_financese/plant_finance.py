@@ -36,10 +36,10 @@ class PlantFinance(ExplicitComponent):
         self.declare_partials('lcoe', ['turbine_cost', 'bos_cost', 'avg_annual_opex', 'net_aep'])
  
     
-    def compute(self, inputs, outputs):
+    def compute(self, inputs, outputs, discrete_inputs, discrete_outputs):
         # Unpack parameters
         depth       = inputs['sea_depth']
-        n_turbine   = inputs['turbine_number']
+        n_turbine   = discrete_inputs['turbine_number']
         c_turbine   = inputs['turbine_cost']
         c_bos_turbine  = inputs['turbine_bos_costs']
         c_opex_turbine = inputs['turbine_avg_annual_opex']
