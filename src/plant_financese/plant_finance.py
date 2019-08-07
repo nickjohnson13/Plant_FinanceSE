@@ -1,6 +1,6 @@
-from openmdao.api import Component
+from openmdao.api import Component, Group, Problem
+import os
 import numpy as np
-
 class PlantFinance(Component):
     def __init__(self, verbosity = False):
         super(PlantFinance, self).__init__()
@@ -78,12 +78,7 @@ class PlantFinance(Component):
         
         icc     = (c_turbine + c_bos_turbine) / (t_rating * 1.e003) #$/kW, changed per COE report
         c_opex  = (c_opex_turbine) / (t_rating * 1.e003)  # $/kW, changed per COE report
-
-        
-        if offshore:
-           # warranty Premium 
-           icc += (c_turbine * n_turbine / 1.10) * 0.15
-        
+      
         #compute COE and LCOE values
         unknowns['lcoe'] = ((icc * fcr + c_opex) / nec) # changed per COE report
 
@@ -168,3 +163,38 @@ class PlantFinance(Component):
         
         return J
 
+class Finance(Group):
+
+    def __init__(self):
+        super(Finance, self).__init__()
+         
+        # LCOE Calculation
+        self.add('plantfinancese', PlantFinance(verbosity = True)) #verbosity = True prints out costs
+
+def Init_Group(prob):
+    prob['plantfinancese.machine_rating'] = 2.32    #MW
+    prob['plantfinancese.turbine_cost'] = 1093  * 2.32 * 1.e+003  #USD
+    prob['plantfinancese.project_lifetime']  = 25.0 #updated from report
+    prob['plantfinancese.turbine_number']               = 87.
+    prob['plantfinancese.turbine_avg_annual_opex']                      = 43.56 * 2.32 * 1.e+003  # USD 70 $/kW/yr, updated from report, 70 $/kW/yr is on the high side
+    prob['plantfinancese.fixed_charge_rate']                = 0.079216644 # 7.9 % confirmed from report
+    prob['plantfinancese.discount_rate']                    = 0.0759 # from report
+    prob['plantfinancese.turbine_bos_costs'] = 517. * 2.32 * 1.e+003 # * 2.32 * 1.e+006 * 1.e-003 # 250 $/kW, from apendix of report
+    prob['plantfinancese.wake_loss_factor']  = 0.15 # confirmed from report 
+    prob['plantfinancese.turbine_aep']  = 8428.56 * 1.e+003 # confirmed from report 
+  #  prob['plantfinancese.net_energy_capture'] = 3633
+    
+  #  prob['plantfinancese.net_plant_rating'] = prob['plantfinancese.turbine_rating'] * prob['plantfinancese.turbine_number']
+    return prob
+
+if __name__ == "__main__":
+ # Initialize OpenMDAO problem and FloatingSE Group
+    prob_ref = Problem(root=Finance()) # runs script
+    
+    prob_ref.setup(out_stream = open(os.devnull, 'w'))
+    
+    
+    prob_ref = Init_Group(prob_ref)
+    
+    prob_ref.run()
+        
